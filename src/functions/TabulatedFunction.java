@@ -5,6 +5,7 @@ public class TabulatedFunction {
     private int countPoints;
 
     public TabulatedFunction(double leftX, double rightX, int pointsCount){
+        countPoints = pointsCount;
         points = new FunctionPoint[pointsCount];
         double interval = (rightX - leftX)/(pointsCount - 1);
         for (int i = 0; i < pointsCount; ++i) {
@@ -14,6 +15,7 @@ public class TabulatedFunction {
     }
 
     public TabulatedFunction(double leftX, double rightX, double[] values){
+        countPoints = values.length;
         points = new FunctionPoint[values.length];
         double interval = (rightX - leftX)/(values.length - 1);
         for (int i = 0; i < values.length; ++i) {
@@ -23,18 +25,18 @@ public class TabulatedFunction {
     }
 
     public double getLeftDomainBorder(){ return this.points[0].x;}
-    public double getRightDomainBorder(){ return this.points[points.length - 1].x;}
+    public double getRightDomainBorder(){ return this.points[countPoints - 1].x;}
     public double getFunctionValue(double x){
-        if ((x < points[0].x) || (x > points[points.length - 1].x)){ return Double.NaN;}
+        if ((x < points[0].x) || (x > points[countPoints - 1].x)){ return Double.NaN;}
         double interval = points[1].x - points[0].x;
         int index = (int) ((x - points[0].x) / interval); // Индекс левой точки, нашего интервала
         return (points[index + 1].y - points[index].y)*x/interval;
     }
 
-    public int getPointsCount(){ return points.length;}
+    public int getPointsCount(){ return countPoints;}
     public FunctionPoint getPoint(int index){return points[index]; }
     public void setPoint(int index, FunctionPoint point){
-        if ( !((index == 0) || (index == points.length - 1)) ){
+        if ( !((index == 0) || (index == countPoints - 1)) ){
             if ( (point.x > points[index - 1].x) && (point.x < points[index + 1].x) ){
                 points[index] = point;
             }
@@ -43,7 +45,7 @@ public class TabulatedFunction {
 
     public double getPointX(int index){ return points[index].x;}
     public void setPointX(int index, double x){
-        if ( !((index == 0) || (index == points.length - 1)) ){
+        if ( !((index == 0) || (index == countPoints - 1)) ){
             if ( (x > points[index - 1].x) && (x < points[index + 1].x) ){
                 points[index].x = x;
             }
@@ -54,12 +56,28 @@ public class TabulatedFunction {
     public void setPointY(int index, double y){ points[index].y = y; }
 
     public void deletePoint(int index){
-
+        --countPoints;
+        for (int i = index; i < countPoints; ++i) points[i] = points[i + 1]; // Сдвиг правой части на массива на место удалённого
+        if (countPoints == points.length/2){
+            FunctionPoint[] temp = new FunctionPoint[countPoints];
+            System.arraycopy(points, 0, temp, 0, countPoints);
+            points = temp;
+        }
     }
 
     public void addPoint(FunctionPoint point){
-
-
+        int indexForAdd = 0;
+        for (int i = 0; i < countPoints; ++i) if (points[i].x < point.x) indexForAdd = i + 1; // Куда вставить элемент?
+        ++countPoints;
+        if (countPoints > points.length){
+            FunctionPoint[] temp = new FunctionPoint[2 * points.length];
+            System.arraycopy(points, 0, temp, 0, indexForAdd);
+            temp[indexForAdd] = point;
+            System.arraycopy(points, indexForAdd, temp, indexForAdd + 1, points.length - indexForAdd);
+            points = temp;
+        }else{
+            for (int i = countPoints - 1; i > indexForAdd; --i) points[i] = points[i - 1];
+            points[indexForAdd] = point;
+        }
     }
-
 }
