@@ -9,8 +9,7 @@ public class TabulatedFunction {
         points = new FunctionPoint[pointsCount];
         double interval = (rightX - leftX)/(pointsCount - 1);
         for (int i = 0; i < pointsCount; ++i) {
-            points[i].x = leftX + i * interval;
-            points[i].y = 0;
+            points[i] = new FunctionPoint(leftX + i * interval, 0);
         }
     }
 
@@ -19,8 +18,7 @@ public class TabulatedFunction {
         points = new FunctionPoint[values.length];
         double interval = (rightX - leftX)/(values.length - 1);
         for (int i = 0; i < values.length; ++i) {
-            points[i].x = leftX + i * interval;
-            points[i].y = values[i];
+            points[i] = new FunctionPoint(leftX + i * interval, values[i]);
         }
     }
 
@@ -28,10 +26,16 @@ public class TabulatedFunction {
     public double getRightDomainBorder(){ return this.points[countPoints - 1].x;}
     public double getFunctionValue(double x){
         if ((x < points[0].x) || (x > points[countPoints - 1].x)){ return Double.NaN;}
-        double interval = points[1].x - points[0].x;
-        int index = (int) ((x - points[0].x) / interval); // Индекс левой точки, нашего интервала
-        return (points[index + 1].y - points[index].y)*x/interval;
+        int index = -1;
+        for (int i = 0; i < countPoints - 1; ++i){
+            if ((x >= points[i].x) && (x <= points[i + 1].x)){
+                index = i;
+                break;
+            }
+        }
+        return points[index].y + (points[index + 1].y - points[index].y)*(x - points[index].x)/(points[index + 1].x - points[index].x);
     }
+
 
     public int getPointsCount(){ return countPoints;}
     public FunctionPoint getPoint(int index){return points[index]; }
