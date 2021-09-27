@@ -4,6 +4,8 @@ public class TabulatedFunction {
     private FunctionPoint[] points;
     private int countPoints;
 
+    public int maxCountElem(){return points.length;}; //Сколько с запасом влезет элементов в данный массив
+
     public TabulatedFunction(double leftX, double rightX, int pointsCount){
         countPoints = pointsCount;
         points = new FunctionPoint[pointsCount];
